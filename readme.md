@@ -18,7 +18,6 @@
 
 <pre>
 <code>
-
 function func(callback){
 	callback("callback!!");
 }
@@ -29,3 +28,23 @@ func((param) => {
 
 </pre>
 </code>
+ 
+ - 위 코드는 동일한 스레드 위에서 동기적으로 동작한다. func 함수 내부에서 비동기적으로 콜백하려면 process.nextTick 함수를 이용해야한다.
+ 
+ <pre>
+ <code>
+ function func(callback){
+	process.nextTick(callback, "callback!");
+}
+
+try{
+	func((param)=>{
+		a.a = 0;
+	});
+} catch(e){
+	console.log("exception !!");
+}
+ </pre>
+ </code>
+ 
+ - 위 코드의 경우, try~catch문의 실행되지 않고 프로세스 실행 에러가 발생한다. process.nextTick 함수는 비동기 처리를 위해 Node.js 내부의 스레드 풀로 다른 스레드 위에서 콜백 함수를 동작하게 된다. try~catch 문은 같은 스레드 위에서만 동작하기 때문에 서로 다른 스레드 간의 예외 처리가 불가능하다. 이처럼 process.nextTick 함수를 이용하면 Node js 가 CPU 를 효율적으로 사용하는 대신 try~catch 문만으로는 예외 처리가 불가능하다.
