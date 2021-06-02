@@ -47,3 +47,28 @@ try{
  </code>
  
  - 위 코드의 경우, try catch문의 실행되지 않고 프로세스 실행 에러가 발생한다. process.nextTick 함수는 비동기 처리를 위해 Node.js 내부의 스레드 풀로 다른 스레드 위에서 콜백 함수를 동작하게 된다. try catch 문은 같은 스레드 위에서만 동작하기 때문에 서로 다른 스레드 간의 예외 처리가 불가능하다. 이처럼 process.nextTick 함수를 이용하면 Node js 가 CPU 를 효율적으로 사용하는 대신 try catch 문만으로는 예외 처리가 불가능하다.
+
+## 싱글 스레드 프로그래밍
+- Node js 는 싱글 스레드 기반으로 동작한다. 하지만 싱글 스레드라고 해서 모두 같은 스레드 위에서 동작하지는 않는다.
+- 비동기 호출을 할 경우, 함수를 호출한 영역과 콜백을 처리하는 영역이 각기 다른 스레드 위에서 동작한다. 이때 try catch 문으로 모든 예외를 처리하기에는 무리가 있다.
+- Node js 는 모든 스레드에서 예외 처리를 할 수 있도록 uncaughtException 이벤트를 제공한다.
+
+<pre>
+<code>
+function func(callback){
+	process.nextTick(callback, "callback!!");
+}
+
+try{
+	func((param) => {
+		a.a=0;
+	});
+} catch(e){
+	console.log("exception!! : "+ e.getMessage);
+}
+
+process.on("uncaughtException", (error) => {
+	console.log("uncaughtException!! " + error);
+});
+</pre>
+</code>
